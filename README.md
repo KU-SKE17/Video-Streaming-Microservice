@@ -66,4 +66,31 @@ app.listen(port, () => {
 });
 ```
 
-> **Testing**: Run server, in video-streaming terminal run `node index.js`
+> **Testing**: Run server, in video-streaming terminal run `node index.js` and go to http://localhost:3000
+
+In [index.js](video-streaming/index.js)
+
+```js
+// add
+const fs = require("fs");
+
+// update
+app.get("/video", (req, res) => {
+  const path = "../videos/SampleVideo_1280x720_1mb.mp4";
+  fs.stat(path, (err, stats) => {
+    if (err) {
+      console.error("An error occurred ");
+      res.sendStatus(500);
+      return;
+    }
+
+    res.writeHead(200, {
+      "Content-Length": stats.size,
+      "Content-Type": "video/mp4",
+    });
+    fs.createReadStream(path).pipe(res);
+  });
+});
+```
+
+> **Testing**: Run server, go to http://localhost:3000/video
