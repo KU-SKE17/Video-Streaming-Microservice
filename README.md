@@ -35,19 +35,18 @@ Building an HTTP server for video streaming
 2. Install Express and create a simple HTTP server.
 3. Add an HTTP GET route /video that retrieves the streaming video.
 
-Setup
+Setup project
 
 ```bash
-$ mkdir video-streaming
-$ cd video-streaming
+mkdir video-streaming
+cd video-streaming
 
-# setup node project
-$ npm init -y
-$ npm install --save express
-$ npm install
+npm init -y
+npm install --save express
+npm install
 ```
 
-Create [index.js](video-streaming/index.js)
+Create router --[index.js](video-streaming/index.js)
 
 ```js
 const express = require("express");
@@ -66,9 +65,9 @@ app.listen(port, () => {
 });
 ```
 
-> **Testing**: Run server, in video-streaming terminal run `node index.js` and go to http://localhost:3000
+> **Running**: to test/run the server, in video-streaming terminal run `node index.js` and go to http://localhost:3000
 
-In [index.js](video-streaming/index.js)
+Update HTTP endpoint, In [index.js](video-streaming/index.js)
 
 ```js
 // add
@@ -93,4 +92,58 @@ app.get("/video", (req, res) => {
 });
 ```
 
-> **Testing**: Run server, go to http://localhost:3000/video
+> **Running**: go to http://localhost:3000/video
+
+Config environment
+
+- setup env variable, in terminal
+
+  ```bash
+  export <key>=<value>
+  ```
+
+- in [index.js](video-streaming/index.js) using `process.env.<key>`
+
+Setup production
+
+- in terminal
+
+  ```bash
+  npm install --only=production
+  ```
+
+- in [package.json](video-streaming/package.json)
+
+  ```json
+  "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      // add
+      "start": "node index.js"
+  },
+  ```
+
+> **Running**: from now, using `npm start` convention
+
+Create live reload pipeline
+
+```bash
+npm install --save-dev nodemon
+```
+
+> **Running**: to use nodemon, using `npx nodemon index.js`
+
+> or add "start:dev": "nodemon index.js" in [package.json](video-streaming/package.json) scripts (just like above) to use `npm run start:dev` convention instead
+
+Summary of Running Command
+
+```bash
+# install dependencies
+npm install
+# install as simulated production
+npm install --only=production
+
+# run
+npm start
+# run with live reload
+npm run start:dev
+```
