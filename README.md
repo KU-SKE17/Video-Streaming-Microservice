@@ -46,7 +46,7 @@ npm install --save express
 npm install
 ```
 
-Create router --[index.js](video-streaming/index.js)
+Create router --[index.js](video-streaming/src/index.js)
 
 ```js
 const express = require("express");
@@ -67,7 +67,7 @@ app.listen(port, () => {
 
 > **Running**: to test/run the server, in video-streaming terminal run `node index.js` and go to http://localhost:3000
 
-Update HTTP endpoint, In [index.js](video-streaming/index.js)
+Update HTTP endpoint, In [index.js](video-streaming/src/index.js)
 
 ```js
 // add
@@ -102,7 +102,7 @@ Config environment
   export <key>=<value>
   ```
 
-- in [index.js](video-streaming/index.js) using `process.env.<key>`
+- in [index.js](video-streaming/src/index.js) using `process.env.<key>`
 
 Setup production
 
@@ -147,3 +147,87 @@ npm start
 # run with live reload
 npm run start:dev
 ```
+
+### Chapter 3 Publishing your first microservice
+
+Deploy the video streaming microservice to Docker registry
+
+1. Package our microservice into a Docker image
+2. Publish our image to our private container registry
+3. Run our microservice in a container
+
+Update directory structure
+
+- create /src, move index.js in
+- update [index.js](video-streaming/src/index.js)
+- update [package.json](video-streaming/package.json)
+- create /videos, move video in
+
+Create [Dockerfile](video-streaming/Dockerfile)
+
+```Dockerfile
+FROM node:12.18.1-alpine
+
+WORKDIR /usr/src/app
+COPY package*.json ./
+
+RUN npm install --only=production
+COPY ./src ./src
+COPY ./videos ./videos
+
+CMD npm start
+```
+
+Create image
+
+launch docker, then in terminal
+
+```bash
+# docker build -t <your-name-for-the-image> --file <path-to-your-Dockerfile> <path-to-project>
+docker build -t video-streaming --file Dockerfile .
+```
+
+Create/Run container from our image
+
+```bash
+# docker run -d p <host-port>:<container-port> <image-name>
+docker run -d -p 3000:3000 video-streaming
+```
+
+> **Checking**: run `docker container list` to check whether the container running or not, and run `docker logs <container_id>` to check the running server.
+
+Publishing the image
+
+- create account on `Microsoft Azure` (only first time)
+- create container registry
+  - in Microsoft Azure find [container registry service](https://portal.azure.com/#blade/HubsExtension/BrowseResource/resourceType/Microsoft.ContainerRegistry%2Fregistries)
+  - create a registry (basic, name=zxz99)
+  - go to Access keys, and Enabled Admin user
+- login docker (not docker account)
+
+  ```bash
+  # docker login <your-registry-url> --username <your-username> --password <your-password>
+  docker login zxz99.azurecr.io --username zxz99 --password <password_from_zxz99_access_keys>
+  ```
+
+- add tag to the image
+
+  ```bash
+  # docker tag <existing-image> <registry-url>/<image-name>:<version>
+  docker tag video-streaming zxz99.azurecr.io/video-streaming:latest
+  ```
+
+- publish image to the registry
+
+  ```bash
+  # docker push <registry-url>/<image-name>:<version>
+  docker push zxz99.azurecr.io/video-streaming:latest
+  ```
+
+- check Repositories (Microsoft Azure), you will see the image published with tag
+
+![published-image](images/published-image.png)
+
+> **Cleaning**: you can go ahead and delete all images from your local pc
+
+> **Running**: everyone can run `docker run -d -p 3000:3000 zxz99.azurecr.io/video-streaming:latest` to create/run container from your published image
