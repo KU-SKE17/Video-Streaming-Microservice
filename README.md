@@ -432,3 +432,32 @@ do the same for both microservices (video-streaming, history)
   - `startHttpServer` to start the service
 
 > **Running**: run `docker-compose up --build`
+
+Create RabbitMQ messaging
+
+- create a RabbitMQ server, update [docker-compose.yml](docker-compose.yml)
+
+- investigate RabbitMQ dashboard
+
+  - run `docker-compose up --build`
+  - go to http://localhost:15672/
+  - login with default: username=guest, pwd=guest
+  - click Queues tab to view message queues
+
+- connect microservice to the message queue & receive single-recipient (1-to-1) indirect messaging
+
+  - in terminal
+
+    ```bash
+    # for both microservices
+    npm install --save amqplib
+
+    # (fixed bug) history only
+    npm install --save wait-port
+    ```
+
+  - update [index.js (video-streaming)](video-streaming/src/index.js), [index.js (history)](history/src/index.js)
+  - update [docker-compose.yml](docker-compose.yml) (set depends_on of both containers)
+  - (fixed bug) for update [history/Dockerfile-dev](history/Dockerfile-dev)
+
+  > **Running**: run `docker-compose up --build`, go to http://localhost:4002/video, check output msg in your local mongoDB database
