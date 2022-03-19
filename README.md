@@ -53,7 +53,6 @@ cd video-streaming
 
 npm init -y
 npm install --save express
-npm install
 ```
 
 Create router --[index.js](video-streaming/src/index.js)
@@ -324,7 +323,6 @@ Create new microservice to read the storage
   npm install --save express
   npm install --save-dev nodemon
   npm install --save azure-storage
-  npm install
   ```
 
 - add [code](azure-storage/src/index.js)
@@ -391,7 +389,6 @@ Create new microservice to store history
   npm install --save express
   npm install --save mongodb
   npm install --save-dev nodemon
-  npm install
   ```
 
 - add [code](history/src/index.js)
@@ -444,20 +441,45 @@ Create RabbitMQ messaging
   - login with default: username=guest, pwd=guest
   - click Queues tab to view message queues
 
-- connect microservice to the message queue & receive single-recipient (1-to-1) indirect messaging
+- connect microservice to the message queue & single-recipient (1-to-1) message
 
   - in terminal
 
     ```bash
     # for both microservices
     npm install --save amqplib
-
-    # (fixed bug) history only
     npm install --save wait-port
     ```
 
   - update [index.js (video-streaming)](video-streaming/src/index.js), [index.js (history)](history/src/index.js)
   - update [docker-compose.yml](docker-compose.yml) (set depends_on of both containers)
-  - (fixed bug) for update [history/Dockerfile-dev](history/Dockerfile-dev)
+  - (fixed bug) for update [video-streaming/Dockerfile](video-streaming/Dockerfile), [history/Dockerfile-dev](history/Dockerfile-dev)
 
   > **Running**: run `docker-compose up --build`, go to http://localhost:4002/video, check output msg in your local mongoDB database
+
+- multiple-recipient (1-to-many) message
+
+  - update [index.js (video-streaming)](video-streaming/src/index.js), [index.js (history)](history/src/index.js)
+  - create new microservices (for simulation)
+
+    - setup project
+
+    ```bash
+    # create new folder (microservice)
+    mkdir recommendations
+    cd recommendations
+
+    # install packages
+    npm init -y
+    npm install --save express
+    npm install --save mongodb
+    npm install --save-dev nodemon
+    npm install --save amqplib
+    npm install --save wait-port
+    ```
+
+    - add [code](recommendations/src/index.js)
+    - add Dockerfiles: [dev](recommendations/Dockerfile-dev), [prod](recommendations/Dockerfile-prod)
+    - update [docker-compose.yml](docker-compose.yml)
+
+  > **Running**: run `docker-compose up --build`

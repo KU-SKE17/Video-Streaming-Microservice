@@ -19,7 +19,13 @@ function connectRabbit() {
         .then(connection => {
             console.log("Connected to RabbitMQ.");
 
-            return connection.createChannel(); // Create a RabbitMQ messaging channel.
+            return connection.createChannel() // Create a RabbitMQ messaging channel.
+                .then(messageChannel => {
+                    return messageChannel.assertExchange("viewed", "fanout") // Assert that we have a "viewed" exchange.
+                        .then(() => {
+                            return messageChannel;
+                        });
+                });
         });
 }
 
@@ -27,11 +33,11 @@ function connectRabbit() {
 // Send the "viewed" to the history microservice.
 //
 function sendViewedMessage(messageChannel, videoPath) {
-    console.log(`Publishing message on "viewed" queue.`);
-
+    console.log(`Publishing message on "viewed" exchange.`);
+        
     const msg = { videoPath: videoPath };
     const jsonMsg = JSON.stringify(msg);
-    messageChannel.publish("", "viewed", Buffer.from(jsonMsg)); // Publish message to the "viewed" queue.
+    messageChannel.publish("viewed", "", Buffer.from(jsonMsg)); // Publish message to the "viewed" exchange.
 }
 
 //
