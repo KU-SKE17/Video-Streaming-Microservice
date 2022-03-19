@@ -276,3 +276,55 @@ docker-compose down
 # do both to update code or dependencies
 docker-compose down && docker-compose up --build
 ```
+
+Docker Compose for production (short term)
+
+- Create a virtual machine (VM) in the cloud and install Docker and Docker Compose. Then copy your application to the VM and boot it using Docker Compose. (con: limit horizontally scalability)
+
+- Use the Docker Swarm hosted service (from the makers of Docker) to deploy your application defined by the Docker Compose file. (con: expensive --need paid package)
+
+So, let use `Kubernetes`!
+
+Create file storage
+
+You can use `AWS S3` or `Google Cloud Storage`. But in this tutorial, we will use `Azure Storage`
+
+- create azure storage
+  - in Microsoft Azure find [storage account](https://portal.azure.com/#blade/HubsExtension/BrowseResource/resourceType/Microsoft.Storage%2FStorageAccounts)
+  - create a storage account (standard, name=storagezxz, redundancy=GRS)
+  - go to Access keys, and copy key1
+- Upload video to the storage
+  - go to Container (in azure storage account)
+  - create a container (name=videos, access=blobs)
+  - in that container, click upload...
+
+![storage-account](images/azure-storage-account.png)
+
+Create a microservice to read the storage
+
+- setup project
+
+  ```bash
+  # create new folder (microservice)
+  mkdir azure-storage
+  cd azure-storage
+
+  # install packages
+  npm init -y
+  npm install --save express
+  npm install --save azure-storage
+  npm install
+  ```
+
+- add [code](azure-storage/src/index.js)
+- add [Dockerfile](azure-storage/Dockerfile)
+
+Config environment
+
+```bash
+export PORT=3000
+export STORAGE_ACCOUNT_NAME=storagezxz
+export STORAGE_ACCESS_KEY=<access-key1>
+```
+
+> **Running/Testing**: (after add line 8-9 in package.json) run `npm start` or `npm run start:dev` and go to http://localhost:3000/video?path=SampleVideo_1280x720_1mb.mp4
