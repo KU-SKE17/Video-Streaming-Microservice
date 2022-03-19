@@ -327,4 +327,6 @@ export STORAGE_ACCOUNT_NAME=storagezxz
 export STORAGE_ACCESS_KEY=<access-key1>
 ```
 
+Update environment in [docker-compose.yml](docker-compose.yml)
+
 > **Running/Testing**: (after add line 8-9 in package.json) run `npm start` or `npm run start:dev` and go to http://localhost:3000/video?path=SampleVideo_1280x720_1mb.mp4
