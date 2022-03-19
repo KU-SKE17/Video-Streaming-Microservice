@@ -15,9 +15,11 @@ This project is a tutorial to build microservices based on the [textbook](https:
 
 - `Node.js`: To build the microservices
 - `Docker`: To package and deploy the services
-- `Docker` Compose: To test the microservices application on the development workstation
+- `Docker Compose`: To test the microservices application on the development workstation
 - `Kubernetes`: To host the application in the cloud
 - `Terraform`: To build the cloud infrastructure, the Kubernetes cluster, and deploy the application
+- `Azure Storage`: To store files in the cloud
+- `MongoDB`: is a popular NoSQL database
 
 ## Architecture
 
@@ -231,3 +233,46 @@ Publishing the image
 > **Cleaning**: you can go ahead and delete all images from your local pc
 
 > **Running**: everyone can run `docker run -d -p 3000:3000 zxz99.azurecr.io/video-streaming:latest` to create/run container from your published image
+
+### Chapter 4 Data management for microservices
+
+Adding both file storage and a database to our FlixTube example application (Adding database server and a second microservice to our application)
+
+Create docker compose file
+
+in [docker-compose.yml](docker-compose.yml)
+
+```yml
+version: "3"
+services:
+  video-streaming:
+    image: video-streaming
+    build:
+      context: ./video-streaming
+      dockerfile: Dockerfile
+    container_name: video-streaming
+    ports:
+      - "4000:80"
+    environment:
+      - PORT=80
+    restart: "no"
+```
+
+Build/Run docker compose, in terminal
+
+```bash
+docker-compose up --build
+```
+
+> **Checking**: to watch the video, checkout http://localhost:4000/video
+
+for other commands
+
+```bash
+# shows list of docker-compose
+docker-compose ps
+# stop (not remove) container
+docker-compose down
+# do both to update code or dependencies
+docker-compose down && docker-compose up --build
+```
