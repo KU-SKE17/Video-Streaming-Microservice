@@ -327,6 +327,32 @@ export STORAGE_ACCOUNT_NAME=storagezxz
 export STORAGE_ACCESS_KEY=<access-key1>
 ```
 
+> **Testing**: (after add line 8-9 in package.json) run `npm start` or `npm run start:dev` and go to http://localhost:3000/video?path=SampleVideo_1280x720_1mb.mp4
+
 Update environment in [docker-compose.yml](docker-compose.yml)
 
-> **Running/Testing**: (after add line 8-9 in package.json) run `npm start` or `npm run start:dev` and go to http://localhost:3000/video?path=SampleVideo_1280x720_1mb.mp4
+Create database
+
+- add database server, update [docker-compose.yml](docker-compose.yml)
+- update [video-streaming/src/index.js](video-streaming/src/index.js)
+- update package, in terminal
+
+  ```bash
+  cd video-streaming
+  npm install --save mongodb
+  ```
+
+- re-build and run `docker-compose up --build`, add data to mondoDB (localhost:4000)
+
+  - create database (name=video-streaming)
+  - create collection (name=videos)
+  - insert document to the collection
+
+    ```json
+    {
+      "_id": { "$oid": "5d9e690ad76fe06a3d7ae416" },
+      "videoPath": "SampleVideo_1280x720_1mb.mp4"
+    }
+    ```
+
+> **Running**: keep the re-build running, then run another `docker-compose up --build` in /video-streaming and go to http://localhost:4002/video?id=5d9e690ad76fe06a3d7ae416
