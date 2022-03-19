@@ -389,6 +389,7 @@ Create new microservice to store history
   # install packages
   npm init -y
   npm install --save express
+  npm install --save mongodb
   npm install --save-dev nodemon
   npm install
   ```
@@ -414,3 +415,20 @@ Indirect messaging
 | | |
 | :--------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ![indirect-messaging](images/indirect-messaging.png) | - introduces an `intermediary` (message queue) btw the endpoints <br/> - much looser coupling <br/> - sender and receiver don’t know which other microservice is involved <br/> - receiver can’t send a direct reply |
+
+Create HTTP messaging
+
+do the same for both microservices (video-streaming, history)
+
+- in terminal
+
+  ```bash
+  npm install --save body-parser
+  ```
+
+- update [index.js (video-streaming)](video-streaming/src/index.js), [index.js (history)](history/src/index.js)
+  - `sendViewedMessage` to `send` a message
+  - `setupHandlers` to `receive` a message
+  - `startHttpServer` to start the service
+
+> **Running**: run `docker-compose up --build`
