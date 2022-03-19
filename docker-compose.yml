@@ -39,3 +39,21 @@ services:
     depends_on:
       - db
     restart: "no"
+
+  history:
+    image: history
+    build:
+      context: ./history
+      dockerfile: Dockerfile-dev
+    container_name: history
+    volumes:
+      - /tmp/history/npm-cache:/root/.npm:z
+      - ./history/src:/usr/src/app/src:z
+    ports:
+      - "4003:80"
+    environment:
+      - PORT=80
+      - DBHOST=mongodb://db:27017
+      - DBNAME=history
+      - NODE_ENV=development
+    restart: "no"

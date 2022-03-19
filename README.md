@@ -1,8 +1,8 @@
-# Video Streaming Microservice
+# Video Streaming Microservice <!-- omit in toc -->
 
 This project is a tutorial to build microservices based on the [textbook](https://www.manning.com/books/bootstrapping-microservices-with-docker-kubernetes-and-terraform?a_aid=datawranglingwithjavascript&a_bid=f8e47dba) --Bootstrapping Microservices with Docker, Kubernetes and Terraform.
 
-## About the Application
+## Application <!-- omit in toc -->
 
 - name: `FlixTube`
 - have a browser-based front end
@@ -11,7 +11,7 @@ This project is a tutorial to build microservices based on the [textbook](https:
   - storage and upload
   - a gateway for the customer-facing front end
 
-## Tools
+## Tools <!-- omit in toc -->
 
 - `Node.js`: To build the microservices
 - `Docker`: To package and deploy the services
@@ -20,14 +20,22 @@ This project is a tutorial to build microservices based on the [textbook](https:
 - `Terraform`: To build the cloud infrastructure, the Kubernetes cluster, and deploy the application
 - `Azure Storage`: To store files in the cloud
 - `MongoDB`: is a popular NoSQL database
+- `HTTP`: To send direct (or synchronous) messages from one microservice to another
+- `RabbitMQ`: To send indirect (or asynchronous) messages from one microservice to another
+- `amqplib`: is a npm package allows us to configure RabbitMQ and to send and receive messages from JavaScript
 
-## Architecture
+## Architecture <!-- omit in toc -->
 
 ![architecture](images/architecture.png)
 
-## Development (step-by-step hand-on)
+## Development (step-by-step hand-on) <!-- omit in toc -->
 
 Source codes: [bootstrapping-microservices/repos](https://github.com/orgs/bootstrapping-microservices/repositories)
+
+- [Chapter 2 Creating your first microservice](#chapter-2-creating-your-first-microservice)
+- [Chapter 3 Publishing your first microservice](#chapter-3-publishing-your-first-microservice)
+- [Chapter 4 Data management for microservices](#chapter-4-data-management-for-microservices)
+- [Chapter 5 Communication between microservices](#chapter-5-communication-between-microservices)
 
 ### Chapter 2 Creating your first microservice
 
@@ -236,7 +244,9 @@ Publishing the image
 
 ### Chapter 4 Data management for microservices
 
-Adding both file storage and a database to our FlixTube example application (Adding database server and a second microservice to our application)
+Adding both file storage and a database to our FlixTube example application (Adding database server and a second microservice to read from storage)
+
+![storage-and-database](images/storage-and-database-architecture.png)
 
 Create docker compose file
 
@@ -300,7 +310,7 @@ You can use `AWS S3` or `Google Cloud Storage`. But in this tutorial, we will us
 
 ![storage-account](images/azure-storage-account.png)
 
-Create a microservice to read the storage
+Create new microservice to read the storage
 
 - setup project
 
@@ -312,6 +322,7 @@ Create a microservice to read the storage
   # install packages
   npm init -y
   npm install --save express
+  npm install --save-dev nodemon
   npm install --save azure-storage
   npm install
   ```
@@ -356,3 +367,50 @@ Create database
     ```
 
 > **Running**: keep the re-build running, then run another `docker-compose up --build` in /video-streaming and go to http://localhost:4002/video?id=5d9e690ad76fe06a3d7ae416
+
+### Chapter 5 Communication between microservices
+
+![communication](images/communication-btw-microservices.png)
+
+Sending messages between microservices, with
+
+- `HTTP requests` -> direct messages
+- `RabbitMQ` -> indirect messages
+
+Create new microservice to store history
+
+- setup project
+
+  ```bash
+  # create new folder (microservice)
+  mkdir history
+  cd history
+
+  # install packages
+  npm init -y
+  npm install --save express
+  npm install --save-dev nodemon
+  npm install
+  ```
+
+- add [code](history/src/index.js)
+- add Dockerfiles: [dev](history/Dockerfile-dev), [prod](history/Dockerfile-prod)
+- update [docker-compose.yml](docker-compose.yml)
+
+> **Notifying**: (after add line 8-9 in package.json) `--legacy-watch` argument disables the filesystem watch and, instead, uses a frequent polling mechanism to monitor for code changes.
+
+> **Running**: for production run `npm start`, for testing run `npm run start:dev`, and for development within the container run `CMD npm start`
+
+Messaging
+
+We would prefer to avoid the tight coupling between our microservices, and for that reason, we will make frequent use of indirect messaging instead of direct messaging.
+
+Direct messaging
+| | |
+| :----------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------ |
+| ![direct-messaging](images/direct-messaging.png) | - immediate send and receive <br/> - often required for certain use cases <br/> - drawback: requires tight coupling btw microservices |
+
+Indirect messaging
+| | |
+| :--------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![indirect-messaging](images/indirect-messaging.png) | - introduces an `intermediary` (message queue) btw the endpoints <br/> - much looser coupling <br/> - sender and receiver don’t know which other microservice is involved <br/> - receiver can’t send a direct reply |
