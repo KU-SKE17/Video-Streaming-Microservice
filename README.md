@@ -17,7 +17,9 @@ This project is a tutorial to build microservices based on the [textbook](https:
 - `Docker`: To package and deploy the services
 - `Docker Compose`: To test the microservices application on the development workstation
 - `Kubernetes`: To host the application in the cloud
+- `Kubectl`: is the command-line tool for interacting with a Kubernetes cluster
 - `Terraform`: To build the cloud infrastructure, the Kubernetes cluster, and deploy the application
+- `Azure CLI`: is an Azure command-line tool, to authenticate and give Terraform access to Azure account
 - `Azure Storage`: To store files in the cloud
 - `MongoDB`: is a popular NoSQL database
 - `HTTP`: To send direct (or synchronous) messages from one microservice to another
@@ -36,6 +38,7 @@ Source codes: [bootstrapping-microservices/repos](https://github.com/orgs/bootst
 - [Chapter 3 Publishing your first microservice](#chapter-3-publishing-your-first-microservice)
 - [Chapter 4 Data management for microservices](#chapter-4-data-management-for-microservices)
 - [Chapter 5 Communication between microservices](#chapter-5-communication-between-microservices)
+- [Chapter 6 Creating your production environment](#chapter-6-creating-your-production-environment)
 
 ### Chapter 2 Creating your first microservice
 
@@ -483,3 +486,56 @@ Create RabbitMQ messaging
     - update [docker-compose.yml](docker-compose.yml)
 
   > **Running**: run `docker-compose up --build`
+
+### Chapter 6 Creating your production environment
+
+Build production infrastructure with Terraform and create a Kubernetes cluster to host the microservices
+
+Authenticate with Azure
+
+- install [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) (only first time)
+- login Azure
+
+  ```bash
+  # login using browser
+  $ az login
+  ```
+
+  ```bash
+  # show account info
+  $ az account show
+  # set subscription
+  $ az account set --subscription=<subscription-id>
+  ```
+
+- view/check Kubernetes versions
+
+  ```bash
+  # show table of Kubernetes versions
+  $ az aks get-versions --location westus --output table
+  ```
+
+Create infrastructure with Terraform
+
+use `infrastructure as code` to automate the process of infrastructure creation
+
+- install [Terraform](https://www.terraform.io/downloads) (only first time)
+- create [providers.tf](working/scripts/providers.tf) and [resource-group.tf](working/scripts/resource-group.tf)
+- build/run Terraform
+
+  ```bash
+  $ cd working/scripts
+
+  # initial (first time only)
+  $ terraform init
+
+  # build
+  $ terraform apply
+  # update (after add files)
+  $ terraform apply -auto-approve
+
+  # destroy
+  $ terraform destroy
+  ```
+
+- create [container-registry.tf](working/scripts/container-registry.tf) -> resource.name (container name) need to be unique
