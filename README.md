@@ -19,6 +19,7 @@ This project is a tutorial to build microservices based on the [textbook](https:
 - `Kubernetes`: To host the application in the cloud
 - `Kubectl`: is the command-line tool for interacting with a Kubernetes cluster
 - `Terraform`: To build the cloud infrastructure, the Kubernetes cluster, and deploy the application
+- `Bitbucket Pipelines`: is automate the deployment service
 - `Azure CLI`: is an Azure command-line tool, to authenticate and give Terraform access to Azure account
 - `Azure Storage`: To store files in the cloud
 - `MongoDB`: is a popular NoSQL database
@@ -39,6 +40,7 @@ Source codes: [bootstrapping-microservices/repos](https://github.com/orgs/bootst
 - [Chapter 4 Data management for microservices](#chapter-4-data-management-for-microservices)
 - [Chapter 5 Communication between microservices](#chapter-5-communication-between-microservices)
 - [Chapter 6 Creating your production environment](#chapter-6-creating-your-production-environment)
+- [Chapter 7 Getting to continuous delivery](#chapter-7-getting-to-continuous-delivery)
 
 ### Chapter 2 Creating your first microservice
 
@@ -587,3 +589,52 @@ Interact with Kubernetes
   ```bash
   kubectl proxy --address=0.0.0.0
   ```
+
+### Chapter 7 Getting to continuous delivery
+
+Configure Kubernetes with Terraform then deploy containers to Kubernetes cluster
+
+Create an automated deployment pipeline, using Bitbucket Pipelines for continuous delivery
+
+- configure Kubernetes, update [providers.tf](working/scripts/providers.tf)
+- deploy database, create [database.tf](/working/scripts/database.tf)
+- run automated deploying (same as before but add `client_id` and `client_secret` in arguments)
+
+  ```bash
+  terraform apply -var="client_id=<client-id>" -var="client_secret=<client-secret>" -auto-approve
+  ```
+
+> **Testing**: run `kubectl get services` to find external IP address
+
+Deploy RabbitMQ server to Kubernetes
+
+- create [rabbit.tf](working/scripts/rabbit.tf)
+- run 'automated deploying cmd' (above) again
+
+Deploy microservice to Kubernetes
+
+- create [video-streaming.tf](/working/scripts/video-streaming.tf)
+- build/publish the image (just like [ch.3](#chapter-3-publishing-your-first-microservice))
+- run 'automated deploying cmd' (above) again
+
+Continuous delivery with Bitbucket pipelines
+
+- destroy current infrastructure
+
+  ```bash
+  terraform destroy
+  ```
+
+- sign up [Bitbucket](https://bitbucket.org) (first time only)
+- in bitbucket, create a new repository for the project
+- create a deployment shell script, create [deploy.sh](working/scripts/deploy.sh)
+- manage the state, create [backend.tf](working/scripts/backend.tf)
+- config pipelines, create [bitbucket-pipelines.yml](bitbucket-pipelines.yml)
+- run `export VERSION=$BITBUCKET_BUILD_NUMBER`
+- in bitbucket, config:
+  - ARM_CLIENT_ID = `appId` from Kubernetes cluster service
+  - ARM_CLIENT_SECRET = `password` from Kubernetes cluster service
+  - ARM_TENANT_ID = `tenantId` from Azure subscription
+  - ARM_SUBSCRIPTION_ID = `id` from Azure subscription
+
+> **Testing**: push everything to see the pipeline status (in bitbucket)

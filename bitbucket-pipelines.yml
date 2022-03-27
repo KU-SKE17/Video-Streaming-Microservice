@@ -1,0 +1,14 @@
+# Configuration file for Bitbucket Pipelines that enables continuous delivery for this project.
+
+image: hashicorp/terraform:0.12.29
+
+pipelines:
+    default:
+      - step:
+          name: Build and deploy
+          services:
+            - docker
+          script:
+            - export VERSION=$BITBUCKET_BUILD_NUMBER
+            -  chmod +x ./scripts/deploy.sh
+            - ./scripts/deploy.sh
