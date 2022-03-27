@@ -508,7 +508,7 @@ Authenticate with Azure
   $ az account set --subscription=<subscription-id>
   ```
 
-- view/check Kubernetes versions
+- config Kubernetes versions in [providers.tf](working/scripts/providers.tf)
 
   ```bash
   # show table of Kubernetes versions
@@ -539,3 +539,51 @@ use `infrastructure as code` to automate the process of infrastructure creation
   ```
 
 - create [container-registry.tf](working/scripts/container-registry.tf) -> resource.name (container name) need to be unique
+- create [variables.tf](working/scripts/variables.tf), update [resource-group.tf](working/scripts/resource-group.tf)
+
+Create Kubernetes cluster
+
+- create [kubernetes-cluster.tf](working/scripts/kubernetes-cluster.tf)
+- create service, take note of the output (`appId`, `password`)
+
+  ```bash
+  # (run `az account show`) get <subscription-id> as 'id'
+  # create service principal
+  $ az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/<subscription-id>"
+  ```
+
+- create [private-key.tf](working/scripts/private-key.tf)
+- update [variables.tf](/working/scripts/variables.tf)
+  - client_id = `appId`
+  - client_secret = `password`
+- create Kubernetes cluster, take note of the output (`cluster_client_certificate`, `cluster_client_key`, and `cluster_cluster_ca_certificate` --credentials to interface with the cluster)
+
+  ```bash
+    # build cluster
+    $ terraform apply -auto-approve
+  ```
+
+Interact with Kubernetes
+
+- install [kubectl](https://kubernetes.io/docs/tasks/tools/) (first time only)
+- authentication
+
+  ```bash
+  # auto initial .kube/config file
+  $ az aks get-credentials --resource-group <app-name> --name <app-name>
+
+  # test the authentication with kubectl
+  $ kubectl get nodes
+  ```
+
+- install dashboard
+
+  ```bash
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.4/aio/deploy/ recommended.yaml
+  ```
+
+- connect dashboard (http://localhost:8001)
+
+  ```bash
+  kubectl proxy --address=0.0.0.0
+  ```
